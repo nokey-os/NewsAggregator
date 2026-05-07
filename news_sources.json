@@ -1,0 +1,64 @@
+{
+    "sources": [
+        {
+            "name": "Lenta.ru",
+            "url": "https://lenta.ru/rss",
+            "icon": "📰"
+        },
+        {
+            "name": "Habr (Best)",
+            "url": "https://habr.com/ru/rss/best/daily/",
+            "icon": "💻"
+        },
+        {
+            "name": "Habr (Все)",
+            "url": "https://habr.com/ru/rss/all/all/",
+            "icon": "💻"
+        },
+        {
+            "name": "Habr (AI)",
+            "url": "https://habr.com/ru/rss/hub/artificial_intelligence/all/",
+            "icon": "🤖"
+        },
+        {
+            "name": "Habr (IT)",
+            "url": "https://habr.com/ru/rss/hub/it_infrastructure/all/",
+            "icon": "🖥️"
+        },
+        {
+            "name": "Habr (Dev)",
+            "url": "https://habr.com/ru/rss/flows/develop/all/",
+            "icon": "⚙️"
+        },
+        {
+            "name": "ТАСС",
+            "url": "https://tass.ru/rss/v2.xml",
+            "icon": "📡"
+        },
+        {
+            "name": "RIA",
+            "url": "https://ria.ru/export/rss2/archive/index.xml",
+            "icon": "🌐"
+        },
+        {
+            "name": "РБК",
+            "url": "https://www.rbc.ru/topnews/topnews.rss",
+            "icon": "📊"
+        },
+        {
+            "name": "Коммерсантъ",
+            "url": "https://www.kommersant.ru/rss/all",
+            "icon": "📋"
+        },
+        {
+            "name": "Прайм",
+            "url": "https://1prime.ru/export/rss2/top/index.xml",
+            "icon": "💹"
+        },
+        {
+            "name": "3DNews",
+            "url": "https://www.3dnews.ru/rss",
+            "icon": "🎮"
+        }
+    ]
+}

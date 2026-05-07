@@ -1,0 +1,763 @@
+/* ============================================================
+   СТИЛИ — Новостной агрегатор
+   ============================================================ */
+
+/* --- Базовые настройки --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #0f1923;
+    color: #e0e0e0;
+    min-height: 100vh;
+}
+
+/* --- Верхняя панель --- */
+.navbar {
+    background: #1a2634;
+    border-bottom: 1px solid #2a3a4a;
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.nav-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    font-size: 1.5rem;
+}
+
+.logo-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+}
+
+.nav-time {
+    font-size: 0.9rem;
+    color: #7a8a9a;
+    font-family: 'Courier New', monospace;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* --- Группа выбора всех --- */
+.select-all-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-checkbox {
+    display: none;
+}
+
+.nav-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 14px;
+    background: #2a3a4a;
+    border: 1px solid #3a4a5a;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #a0b0c0;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.nav-checkbox-label:hover {
+    background: #3a4a5a;
+    color: #fff;
+}
+
+/* Кастомный чекбокс в навбаре */
+.nav-checkbox-label::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid #5a6a7a;
+    border-radius: 4px;
+    background: transparent;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.nav-checkbox:checked + .nav-checkbox-label::before {
+    background: #4a9eff;
+    border-color: #4a9eff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' width='14' height='14'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Состояние indeterminate */
+.nav-checkbox:indeterminate + .nav-checkbox-label::before {
+    background: #4a9eff;
+    border-color: #4a9eff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' width='14' height='14'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.selected-count {
+    font-size: 0.8rem;
+    color: #4a9eff;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* --- Кнопка публикации в навбаре --- */
+.btn-publish-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #0077FF, #0055CC);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-publish-nav:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 119, 255, 0.4);
+}
+
+.btn-publish-nav:active {
+    transform: translateY(0);
+}
+
+/* --- Контейнер --- */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+/* --- Панель фильтров --- */
+.filter-bar {
+    margin-bottom: 30px;
+    background: #1a2634;
+    border: 1px solid #2a3a4a;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.filter-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.filter-row:last-child {
+    margin-bottom: 0;
+}
+
+.filter-group {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+}
+
+.filter-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: #0f1923;
+    border: 1px solid #2a3a4a;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #4a9eff;
+}
+
+.filter-input::placeholder {
+    color: #5a6a7a;
+}
+
+.exclude-input {
+    border-color: #3a2a2a;
+}
+
+.exclude-input:focus {
+    border-color: #ff6b6b;
+}
+
+.filter-select {
+    padding: 12px 16px;
+    background: #0f1923;
+    border: 1px solid #2a3a4a;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    cursor: pointer;
+    min-width: 180px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #4a9eff;
+}
+
+.filter-options {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.9rem;
+    color: #a0b0c0;
+}
+
+.checkbox-custom-small {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #3a4a5a;
+    border-radius: 4px;
+    background: transparent;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkbox-custom-small {
+    background: #4a9eff;
+    border-color: #4a9eff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' width='14' height='14'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.checkbox-text {
+    white-space: nowrap;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-filter {
+    padding: 12px 20px;
+    background: #4a9eff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-filter:hover {
+    background: #3a8eef;
+}
+
+.btn-reset {
+    padding: 10px 16px;
+    color: #ff6b6b;
+    text-decoration: none;
+    font-weight: 500;
+    border: 1px solid #3a2a2a;
+    border-radius: 8px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-reset:hover {
+    background: #2d1b1b;
+    color: #ff4d4d;
+}
+
+.filter-info {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: #7a8a9a;
+    flex-wrap: wrap;
+}
+
+.filter-info strong {
+    color: #a0b0c0;
+}
+
+/* Подсветка найденных слов */
+.highlight {
+    background: rgba(74, 158, 255, 0.3);
+    color: #fff;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.highlight.synonym {
+    background: rgba(74, 158, 255, 0.15);
+    color: #a0d0ff;
+}
+
+/* --- Сообщения --- */
+.alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.alert-error {
+    background: #2d1b1b;
+    color: #f08080;
+    border: 1px solid #4a2020;
+}
+
+.alert-success {
+    background: #1b2d1b;
+    color: #80f080;
+    border: 1px solid #204a20;
+}
+
+/* --- Заголовок новостей --- */
+.news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #2a3a4a;
+}
+
+.news-header h1 {
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.news-count {
+    background: #2a3a4a;
+    color: #a0b0c0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* --- Лента новостей --- */
+.news-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* --- Карточка новости --- */
+.news-card {
+    background: #1a2634;
+    border: 1px solid #2a3a4a;
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.2s, transform 0.15s, background 0.2s;
+    position: relative;
+}
+
+.news-card:hover {
+    border-color: #3a4a5a;
+    transform: translateY(-2px);
+}
+
+/* Выбранная карточка */
+.news-card.selected {
+    border-color: #4a9eff;
+    background: #1e2e40;
+}
+
+/* --- Чекбокс на карточке --- */
+.news-checkbox-label {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.news-checkbox {
+    display: none;
+}
+
+.checkbox-custom {
+    display: block;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #3a4a5a;
+    border-radius: 6px;
+    background: transparent;
+    transition: all 0.2s;
+}
+
+.news-checkbox:checked + .checkbox-custom {
+    background: #4a9eff;
+    border-color: #4a9eff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' width='14' height='14'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.news-checkbox-label:hover .checkbox-custom {
+    border-color: #4a9eff;
+}
+
+/* Источник новости */
+.news-source {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.source-icon {
+    font-size: 1.1rem;
+}
+
+.source-name {
+    font-size: 0.85rem;
+    color: #4a9eff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Заголовок новости */
+.news-title {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.news-title a {
+    color: #e8f0f8;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.news-title a:hover {
+    color: #4a9eff;
+}
+
+/* Описание */
+.news-description {
+    color: #a0b0c0;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+}
+
+/* Подвал карточки */
+.news-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.news-date {
+    font-size: 0.85rem;
+    color: #5a6a7a;
+}
+
+.btn-read-more {
+    color: #4a9eff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.btn-read-more:hover {
+    color: #6ab0ff;
+}
+
+/* Кнопка открытия в новой вкладке */
+.btn-open-ext {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 1rem;
+    margin-left: 8px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.btn-open-ext:hover {
+    opacity: 1;
+}
+
+/* --- Пустое состояние --- */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #5a6a7a;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    font-size: 1.3rem;
+    color: #7a8a9a;
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    font-size: 1rem;
+}
+
+/* --- Адаптив для мобильных --- */
+@media (max-width: 768px) {
+    .nav-content {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .filter-row {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .filter-input, .filter-select {
+        width: 100%;
+    }
+
+    .filter-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .btn-filter {
+        flex: 1;
+    }
+
+    .news-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .news-card {
+        padding: 18px;
+    }
+
+    .news-title {
+        font-size: 1.05rem;
+    }
+
+    .news-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* ============================================================
+   МОДАЛЬНОЕ ОКНО — Просмотр новости
+   ============================================================ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-container {
+    width: 90%;
+    max-width: 1200px;
+    height: 90vh;
+    background: #1a2634;
+    border: 1px solid #2a3a4a;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transform: scale(0.95);
+    transition: transform 0.3s;
+}
+
+.modal-overlay.open .modal-container {
+    transform: scale(1);
+}
+
+/* Заголовок модального окна */
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid #2a3a4a;
+    background: #1e2e40;
+    flex-shrink: 0;
+}
+
+.modal-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+}
+
+.modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-open-ext-modal {
+    color: #4a9eff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+
+.btn-open-ext-modal:hover {
+    color: #6ab0ff;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid #3a4a5a;
+    border-radius: 8px;
+    color: #a0b0c0;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.modal-close:hover {
+    background: #2a3a4a;
+    color: #fff;
+}
+
+/* Тело модального окна */
+.modal-body {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+}
+
+.modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+/* Загрузка */
+.modal-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    color: #a0b0c0;
+    font-size: 0.95rem;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #2a3a4a;
+    border-top-color: #4a9eff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

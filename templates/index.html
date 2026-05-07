@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новостной агрегатор</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Верхняя панель -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-logo">
+                <span class="logo-icon">📡</span>
+                <span class="logo-text">NewsAggregator</span>
+            </div>
+            <div class="nav-right">
+                <div class="select-all-group" id="selectAllGroup" style="display:none;">
+                    <input type="checkbox" id="selectAll" class="nav-checkbox">
+                    <label for="selectAll" class="nav-checkbox-label">Выбрать все</label>
+                    <span class="selected-count" id="selectedCount"></span>
+                    <button class="btn-publish-nav" id="publishBtn" onclick="publishSelected()" style="display:none;">📤 Опубликовать в VK</button>
+                </div>
+                <div class="nav-time" id="currentTime">--:--</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Сообщения -->
+        {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+        {% if publish_success %}
+        <div class="alert alert-success">{{ publish_success }}</div>
+        {% endif %}
+        {% if publish_error %}
+        <div class="alert alert-error">{{ publish_error }}</div>
+        {% endif %}
+
+        <!-- Панель фильтров -->
+        <form method="POST" action="/filter" class="filter-bar">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <input type="text" name="keywords" id="keywords" 
+                           placeholder="Ключевые слова для поиска..." 
+                           value="{{ keywords if keywords else '' }}"
+                           class="filter-input">
+                </div>
+                <div class="filter-group">
+                    <input type="text" name="exclude_keywords" id="exclude_keywords" 
+                           placeholder="Исключить слова..." 
+                           value="{{ exclude_keywords if exclude_keywords else '' }}"
+                           class="filter-input exclude-input">
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <select name="source_filter" id="source_filter" class="filter-select">
+                        <option value="">Все источники</option>
+                        {% for src in all_sources %}
+                        <option value="{{ src }}" {% if source_filter == src %}selected{% endif %}>{{ src }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select name="date_filter" id="date_filter" class="filter-select">
+                        <option value="all" {% if date_filter == "all" %}selected{% endif %}>За всё время</option>
+                        <option value="today" {% if date_filter == "today" %}selected{% endif %}>Сегодня</option>
+                        <option value="week" {% if date_filter == "week" %}selected{% endif %}>За неделю</option>
+                        <option value="month" {% if date_filter == "month" %}selected{% endif %}>За месяц</option>
+                    </select>
+                </div>
+                <div class="filter-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="search_full_text" id="search_full_text" {% if search_full_text %}checked{% endif %}>
+                        <span class="checkbox-custom-small"></span>
+                        <span class="checkbox-text">Поиск в полном тексте</span>
+                    </label>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter">
+                        🔍 Найти
+                    </button>
+                    {% if keywords or exclude_keywords or source_filter or date_filter != "all" %}
+                    <a href="/" class="btn-reset">✕ Сбросить</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="filter-info">
+                {% if keywords %}
+                <span>Найдено по запросу: <strong>{{ keywords }}</strong></span>
+                {% endif %}
+                {% if exclude_keywords %}
+                <span>Исключая: <strong>{{ exclude_keywords }}</strong></span>
+                {% endif %}
+            </div>
+        </form>
+
+        <!-- Счётчик новостей -->
+        <div class="news-header">
+            <h1>Последние новости</h1>
+            <span class="news-count">{{ news|length }} новостей</span>
+        </div>
+
+        <!-- Лента новостей -->
+        <div class="news-feed">
+            {% if news %}
+                {% for item in news %}
+                <article class="news-card" data-index="{{ loop.index0 }}">
+                    <!-- Чекбокс выбора новости -->
+                    <label class="news-checkbox-label">
+                        <input type="checkbox" class="news-checkbox" data-title="{{ item.title | e }}" data-link="{{ item.link | e }}" data-fulltext="{{ item.full_text | e }}">
+                        <span class="checkbox-custom"></span>
+                    </label>
+                    
+                    <div class="news-source">
+                        <span class="source-icon">{{ item.icon }}</span>
+                        <span class="source-name">{{ item.source }}</span>
+                    </div>
+                    
+                    <h2 class="news-title">
+                        {% if item.link %}
+                        <a href="{{ item.link }}" target="_blank" rel="noopener">{{ item.title }}</a>
+                        {% else %}
+                        {{ item.title }}
+                        {% endif %}
+                    </h2>
+                    
+                    {% if item.description %}
+                    <p class="news-description">{{ item.description }}</p>
+                    {% endif %}
+                    
+                    <div class="news-footer">
+                        {% if item.date %}
+                        <time class="news-date">{{ item.date }}</time>
+                        {% endif %}
+                        {% if item.link %}
+                        <a href="#" class="btn-read-more btn-preview" data-url="{{ item.link | e }}" rel="noopener">Читать →</a>
+                        <a href="{{ item.link }}" target="_blank" class="btn-open-ext" rel="noopener" title="Открыть в новой вкладке">🔗</a>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">📭</span>
+                    <h3>Новостей не найдено</h3>
+                    <p>Попробуйте изменить ключевые слова или проверьте позже</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Скрытая форма для публикации в VK -->
+    <form id="vkPublishForm" action="/publish" method="POST" style="display:none;">
+    </form>
+
+    <!-- Модальное окно для просмотра новости -->
+    <div class="modal-overlay" id="newsModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">Просмотр новости</span>
+                <div class="modal-actions">
+                    <a href="#" id="modalOpenExt" target="_blank" class="btn-open-ext-modal" title="Открыть в новой вкладке">🔗 Открыть на сайте</a>
+                    <button class="modal-close" onclick="closeModal()">✕</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <iframe id="modalIframe" src="" frameborder="0"></iframe>
+            </div>
+            <div class="modal-loading" id="modalLoading">
+                <div class="spinner"></div>
+                <span>Загрузка страницы...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты -->
+    <script>
+        try {
+            // Подсветка найденных ключевых слов
+            {% if keywords %}
+            (function() {
+                var keywords = "{{ keywords }}".toLowerCase().split(/[,\s]+/).filter(function(w) { return w.length > 2; });
+                var synonyms = {};
+                {% for key, syns in SYNONYMS.items() %}
+                    {% for syn in syns %}
+                    synonyms["{{ syn }}"] = "{{ key }}";
+                    {% endfor %}
+                {% endfor %}
+                
+                document.querySelectorAll('.news-title, .news-description').forEach(function(el) {
+                    var html = el.innerHTML;
+                    keywords.forEach(function(word) {
+                        var regex = new RegExp('(' + word + ')', 'gi');
+                        if (html.match(regex)) {
+                            html = html.replace(regex, '<mark class="highlight">$1</mark>');
+                        }
+                        // Также подсвечиваем синонимы
+                        for (var syn in synonyms) {
+                            if (word.indexOf(syn) !== -1 || syn.indexOf(word) !== -1) {
+                                var synRegex = new RegExp('(' + syn + ')', 'gi');
+                                html = html.replace(synRegex, '<mark class="highlight synonym">$1</mark>');
+                            }
+                        }
+                    });
+                    el.innerHTML = html;
+                });
+            })();
+            {% endif %}
+
+            // Автозакрытие сообщений через 8 секунд
+            document.querySelectorAll('.alert').forEach(function(el) {
+                setTimeout(function() {
+                    el.style.transition = 'opacity 0.5s';
+                    el.style.opacity = '0';
+                    setTimeout(function() { el.style.display = 'none'; }, 500);
+                }, 8000);
+            });
+
+            // Обновление времени
+            function updateTime() {
+                var now = new Date();
+                document.getElementById('currentTime').textContent = now.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+            }
+            updateTime();
+            setInterval(updateTime, 1000);
+
+            // Переменные
+            var selectAll = document.getElementById('selectAll');
+            var selectAllGroup = document.getElementById('selectAllGroup');
+            var selectedCount = document.getElementById('selectedCount');
+            var publishBtn = document.getElementById('publishBtn');
+            var newsCheckboxes = document.querySelectorAll('.news-checkbox');
+            var newsCards = document.querySelectorAll('.news-card');
+            var modal = document.getElementById('newsModal');
+            var modalIframe = document.getElementById('modalIframe');
+            var modalLoading = document.getElementById('modalLoading');
+            var modalTitle = document.getElementById('modalTitle');
+            var modalOpenExt = document.getElementById('modalOpenExt');
+
+            // Показываем панель выбора
+            if (newsCheckboxes.length > 0 && selectAllGroup) {
+                selectAllGroup.style.display = 'flex';
+            }
+
+            // Обновление счётчика
+            function updateCount() {
+                var checked = document.querySelectorAll('.news-checkbox:checked').length;
+                var total = newsCheckboxes.length;
+                if (checked > 0) {
+                    selectedCount.textContent = checked + ' из ' + total;
+                    selectedCount.style.opacity = '1';
+                    publishBtn.style.display = 'inline-flex';
+                } else {
+                    selectedCount.textContent = '';
+                    selectedCount.style.opacity = '0';
+                    publishBtn.style.display = 'none';
+                }
+                if (selectAll) {
+                    selectAll.checked = checked === total && total > 0;
+                    selectAll.indeterminate = checked > 0 && checked < total;
+                }
+            }
+
+            // Общий чекбокс
+            if (selectAll) {
+                selectAll.addEventListener('change', function() {
+                    var isChecked = this.checked;
+                    newsCheckboxes.forEach(function(cb) {
+                        cb.checked = isChecked;
+                        cb.closest('.news-card').classList.toggle('selected', isChecked);
+                    });
+                    updateCount();
+                });
+            }
+
+            // Индивидуальные чекбоксы
+            newsCheckboxes.forEach(function(cb) {
+                cb.addEventListener('change', function() {
+                    this.closest('.news-card').classList.toggle('selected', this.checked);
+                    updateCount();
+                });
+            });
+
+            // Клик по карточке
+            newsCards.forEach(function(card) {
+                card.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'INPUT' || e.target.closest('a') || e.target.closest('.news-checkbox-label')) {
+                        return;
+                    }
+                    var cb = this.querySelector('.news-checkbox');
+                    cb.checked = !cb.checked;
+                    cb.dispatchEvent(new Event('change'));
+                });
+            });
+
+            // Публикация в VK
+            window.publishSelected = function() {
+                var checkedBoxes = document.querySelectorAll('.news-checkbox:checked');
+                if (checkedBoxes.length === 0) {
+                    alert('Выберите хотя бы одну новость');
+                    return;
+                }
+                var form = document.getElementById('vkPublishForm');
+                form.innerHTML = '';
+                checkedBoxes.forEach(function(cb) {
+                    var card = cb.closest('.news-card');
+                    var item = {
+                        title: cb.getAttribute('data-title'),
+                        link: cb.getAttribute('data-link'),
+                        source: card.querySelector('.source-name').textContent,
+                        full_text: cb.getAttribute('data-fulltext') || ''
+                    };
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'news_item';
+                    input.value = JSON.stringify(item);
+                    form.appendChild(input);
+                });
+                if (confirm('Опубликовать ' + checkedBoxes.length + ' новостей в VK?')) {
+                    publishBtn.textContent = '⏳ Публикация...';
+                    publishBtn.disabled = true;
+                    form.submit();
+                }
+            };
+
+            // Модальное окно
+            function openModal(url, title) {
+                if (!modal || !modalIframe) {
+                    console.error('Modal elements not found');
+                    return;
+                }
+                modalTitle.textContent = title;
+                modalOpenExt.href = url;
+                modalLoading.style.display = 'flex';
+                modalIframe.style.opacity = '0';
+                modalIframe.src = '/proxy?url=' + encodeURIComponent(url);
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+
+            window.closeModal = function() {
+                if (!modal || !modalIframe) return;
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+                setTimeout(function() { modalIframe.src = ''; }, 300);
+            };
+
+            // Клик по "Читать"
+            document.querySelectorAll('.btn-preview').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var url = this.getAttribute('data-url');
+                    var card = this.closest('.news-card');
+                    var titleEl = card.querySelector('.news-title a') || card.querySelector('.news-title');
+                    var title = titleEl ? titleEl.textContent.trim() : 'Новость';
+                    console.log('Opening modal:', url);
+                    openModal(url, title);
+                });
+            });
+
+            // Закрытие модалки по клику на оверлей
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) closeModal();
+                });
+            }
+
+            // Закрытие по Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal && modal.classList.contains('open')) {
+                    closeModal();
+                }
+            });
+
+            // Iframe loaded
+            if (modalIframe) {
+                modalIframe.addEventListener('load', function() {
+                    if (modalLoading) modalLoading.style.display = 'none';
+                    this.style.opacity = '1';
+                });
+            }
+        } catch(e) {
+            console.error('NewsAggregator JS error:', e);
+        }
+    </script>
+</body>
+</html>
